@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shipment Manager</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Shipment Manager</h1>
+
+    <h3>Add Shipment</h3>
+    <form id="shipmentForm">
+      <input type="number" placeholder="Bill Number" id="bill" required />
+      <input type="text" placeholder="LR Number" id="lr" required />
+      <input type="date" id="date" required />
+      <select id="status" required>
+        <option value="">Select Status</option>
+        <option value="inprogress">In Progress</option>
+        <option value="delivered">Delivered</option>
+      </select>
+      <input type="text" placeholder="Sender City" id="sender" required />
+      <input type="text" placeholder="Receiver City" id="receiver" required />
+      <button type="submit">Add Shipment</button>
+    </form>
+
+    <h3>Filter by Status</h3>
+    <select id="filterStatus">
+      <option value="">All</option>
+      <option value="inprogress">In Progress</option>
+      <option value="delivered">Delivered</option>
+    </select>
+
+    <h3>Delete by Bill Number</h3>
+    <input type="number" id="deleteId" placeholder="Bill Number to delete" />
+    <button onclick="deleteShipment()">Delete</button>
+
+    <h3>Shipments</h3>
+    <table id="shipmentTable">
+      <thead>
+        <tr>
+          <th>Bill</th>
+          <th>LR</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Sender</th>
+          <th>Receiver</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    const shipmentForm = document.getElementById('shipmentForm');
+    const tableBody = document.querySelector('#shipmentTable tbody');
+    const filterStatus = document.getElementById('filterStatus');
+
+    async function loadShipments(status = '') {
+      let url = status ? `${API}/shipments/${status}` : `${API}/shipments`;
+      const res = await fetch(url);
+      const data = await res.json();
+      renderTable(data);
+    }
+
+    function renderTable(shipments) {
+      tableBody.innerHTML = '';
+      shipments.forEach(s => {
+        const row = `<tr>
+          <td>${s.Bill_Number}</td>
+          <td>${s.LR_Number}</td>
+          <td>${s.DateOfShipment}</td>
+          <td>${s.Status}</td>
+          <td>${s.Sender_City}</td>
+          <td>${s.Receiver_City}</td>
+        </tr>`;
+        tableBody.innerHTML += row;
+      });
+    }
+
+    shipmentForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const shipment = {
+        Bill_Number: document.getElementById('bill').value,
+        LR_Number: document.getElementById('lr').value,
+        DateOfShipment: document.getElementById('date').value,
+        Status: document.getElementById('status').value,
+        Sender_City: document.getElementById('sender').value,
+        Receiver_City: document.getElementById('receiver').value,
+      };
+
+      await fetch(`${API}/newShipment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shipment),
+      });
+
+      shipmentForm.reset();
+      loadShipments();
+    };
+
+    async function deleteShipment() {
+      const billNumber = document.getElementById('deleteId').value;
+      if (!billNumber) return alert("Enter a Bill Number");
+      await fetch(`${API}/shipment/${billNumber}`, { method: 'DELETE' });
+      loadShipments();
+    }
+
+    filterStatus.onchange = () => {
+      loadShipments(filterStatus.value);
+    };
+
+    loadShipments();
+  </script>
+</body>
+</html>
