@@ -1,104 +1,398 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shipment Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-      background: #f4f4f4;
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --secondary-color: #f3f4f6;
+      --text-color: #1f2937;
+      --border-color: #e5e7eb;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
     }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: #f9fafb;
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      background: #f9fafb;
+      padding: 2rem;
+      border-radius: 12px;
+    }
+
     h1 {
       text-align: center;
+      color: var(--text-color);
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      font-weight: 600;
     }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
+
+    h3 {
+      margin: 1.5rem 0 1rem;
+      color: var(--text-color);
+      font-size: 1.25rem;
+      font-weight: 500;
     }
-    input, select, button {
-      padding: 8px;
-      margin: 5px 0;
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    input,
+    select {
       width: 100%;
-      box-sizing: border-box;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
     }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button:disabled {
+      background-color: var(--secondary-color);
+      cursor: not-allowed;
+    }
+
+    .delete-section {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .delete-section input {
+      flex: 1;
+    }
+
     table {
       width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
+      margin-top: 1.5rem;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+
+    th {
+      background-color: var(--secondary-color);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    td {
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    tr:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-inprogress {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-delivered {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 6px;
+      background-color: var(--success-color);
+      color: white;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+
+    .section-title h3 {
+      margin: 0;
+      color: var(--text-color);
+    }
+
+    .section-title .icon {
+      margin-right: 0.75rem;
+      color: var(--primary-color);
+    }
+
+    .stats-container {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
-    button {
-      cursor: pointer;
+
+    .stat-card h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--text-color);
+      opacity: 0.8;
+    }
+
+    .stat-card .count {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
+      color: var(--primary-color);
+    }
+
+    .stat-card.total {
+      border-top: 4px solid var(--primary-color);
+    }
+
+    .stat-card.delivered {
+      border-top: 4px solid var(--success-color);
+    }
+
+    .stat-card.inprogress {
+      border-top: 4px solid #f59e0b;
+    }
+
+    @media (max-width: 768px) {
+      .stats-container {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Shipment Manager</h1>
 
-    <h3>Add Shipment</h3>
-    <form id="shipmentForm">
-      <input type="number" placeholder="Bill Number" id="bill" required />
-      <input type="text" placeholder="LR Number" id="lr" required />
-      <input type="date" id="date" required />
-      <select id="status" required>
-        <option value="">Select Status</option>
-        <option value="inprogress">In Progress</option>
-        <option value="delivered">Delivered</option>
-      </select>
-      <input type="text" placeholder="Sender City" id="sender" required />
-      <input type="text" placeholder="Receiver City" id="receiver" required />
-      <button type="submit">Add Shipment</button>
-    </form>
+    <div class="stats-container">
+      <div class="stat-card total">
+        <h3>Total Shipments</h3>
+        <div class="count" id="totalCount">0</div>
+      </div>
+      <div class="stat-card delivered">
+        <h3>Delivered</h3>
+        <div class="count" id="deliveredCount">0</div>
+      </div>
+      <div class="stat-card inprogress">
+        <h3>In Progress</h3>
+        <div class="count" id="inProgressCount">0</div>
+      </div>
+    </div>
 
-    <h3>Filter by Status</h3>
-    <select id="filterStatus">
-      <option value="">All</option>
-      <option value="inprogress">In Progress</option>
-      <option value="delivered">Delivered</option>
-    </select>
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">📦</span>
+        <h3>Add Shipment</h3>
+      </div>
+      <form id="shipmentForm">
+        <div class="form-group">
+          <input type="number" placeholder="Bill Number" id="bill" required />
+        </div>
+        <div class="form-group">
+          <input type="text" placeholder="LR Number" id="lr" required />
+        </div>
+        <div class="form-group">
+          <input type="date" id="date" required />
+        </div>
+        <div class="form-group">
+          <select id="status" required>
+            <option value="">Select Status</option>
+            <option value="inprogress">In Progress</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <input type="text" placeholder="Sender City" id="sender" required />
+        </div>
+        <div class="form-group">
+          <input type="text" placeholder="Receiver City" id="receiver" required />
+        </div>
+        <button type="submit">Add Shipment</button>
+      </form>
+    </div>
 
-    <h3>Delete by Bill Number</h3>
-    <input type="number" id="deleteId" placeholder="Bill Number to delete" />
-    <button onclick="deleteShipment()">Delete</button>
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🔍</span>
+        <h3>Delete</h3>
+      </div>
+      <div class="delete-section">
+        <input type="number" id="deleteId" placeholder="Enter Bill Number to delete" />
+        <button onclick="deleteShipment()">Delete</button>
+      </div>
+    </div>
 
-    <h3>Shipments</h3>
-    <table id="shipmentTable">
-      <thead>
-        <tr>
-          <th>Bill</th>
-          <th>LR</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Sender</th>
-          <th>Receiver</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="section">
+      <div class="form-group">
+        <label for="filterStatus">Filter by Status</label>
+        <select id="filterStatus">
+          <option value="">All Shipments</option>
+          <option value="inprogress">In Progress</option>
+          <option value="delivered">Delivered</option>
+        </select>
+      </div>
+      <div class="section-title">
+        <span class="icon">📋</span>
+        <h3>Shipments List</h3>
+      </div>
+      <table id="shipmentTable">
+        <thead>
+          <tr>
+            <th>Bill Number</th>
+            <th>LR Number</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Sender City</th>
+            <th>Receiver City</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
     const API = 'http://localhost:3000';
-
     const shipmentForm = document.getElementById('shipmentForm');
     const tableBody = document.querySelector('#shipmentTable tbody');
     const filterStatus = document.getElementById('filterStatus');
 
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function updateStats(shipments) {
+      const totalCount = shipments.length;
+      const deliveredCount = shipments.filter(s => s.Status.toLowerCase() === 'delivered').length;
+      const inProgressCount = shipments.filter(s => s.Status.toLowerCase() === 'inprogress').length;
+
+      document.getElementById('totalCount').textContent = totalCount;
+      document.getElementById('deliveredCount').textContent = deliveredCount;
+      document.getElementById('inProgressCount').textContent = inProgressCount;
+    }
+
     async function loadShipments(status = '') {
-      let url = status ? `${API}/shipments/${status}` : `${API}/shipments`;
-      const res = await fetch(url);
-      const data = await res.json();
-      renderTable(data);
+      try {
+        document.body.classList.add('loading');
+        let url = status ? `${API}/shipments/${status}` : `${API}/shipments`;
+        const res = await fetch(url);
+        const data = await res.json();
+        renderTable(data);
+        updateStats(data);
+      } catch (error) {
+        showToast('Error loading shipments', 'error');
+      } finally {
+        document.body.classList.remove('loading');
+      }
     }
 
     function renderTable(shipments) {
@@ -107,8 +401,8 @@
         const row = `<tr>
           <td>${s.Bill_Number}</td>
           <td>${s.LR_Number}</td>
-          <td>${s.DateOfShipment}</td>
-          <td>${s.Status}</td>
+          <td>${new Date(s.DateOfShipment).toLocaleDateString()}</td>
+          <td><span class="status-badge status-${s.Status.toLowerCase()}">${s.Status}</span></td>
           <td>${s.Sender_City}</td>
           <td>${s.Receiver_City}</td>
         </tr>`;
@@ -118,30 +412,45 @@
 
     shipmentForm.onsubmit = async (e) => {
       e.preventDefault();
-      const shipment = {
-        Bill_Number: document.getElementById('bill').value,
-        LR_Number: document.getElementById('lr').value,
-        DateOfShipment: document.getElementById('date').value,
-        Status: document.getElementById('status').value,
-        Sender_City: document.getElementById('sender').value,
-        Receiver_City: document.getElementById('receiver').value,
-      };
+      try {
+        const shipment = {
+          Bill_Number: document.getElementById('bill').value,
+          LR_Number: document.getElementById('lr').value,
+          DateOfShipment: document.getElementById('date').value,
+          Status: document.getElementById('status').value,
+          Sender_City: document.getElementById('sender').value,
+          Receiver_City: document.getElementById('receiver').value,
+        };
 
-      await fetch(`${API}/newShipment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(shipment),
-      });
+        await fetch(`${API}/newShipment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(shipment),
+        });
 
-      shipmentForm.reset();
-      loadShipments();
+        shipmentForm.reset();
+        showToast('Shipment added successfully');
+        loadShipments();
+      } catch (error) {
+        showToast('Error adding shipment', 'error');
+      }
     };
 
     async function deleteShipment() {
       const billNumber = document.getElementById('deleteId').value;
-      if (!billNumber) return alert("Enter a Bill Number");
-      await fetch(`${API}/shipment/${billNumber}`, { method: 'DELETE' });
-      loadShipments();
+      if (!billNumber) {
+        showToast('Please enter a Bill Number', 'error');
+        return;
+      }
+
+      try {
+        await fetch(`${API}/shipment/${billNumber}`, { method: 'DELETE' });
+        showToast('Shipment deleted successfully');
+        loadShipments();
+        document.getElementById('deleteId').value = '';
+      } catch (error) {
+        showToast('Error deleting shipment', 'error');
+      }
     }
 
     filterStatus.onchange = () => {
@@ -151,4 +460,5 @@
     loadShipments();
   </script>
 </body>
+
 </html>
