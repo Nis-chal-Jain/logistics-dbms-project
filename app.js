@@ -20,25 +20,27 @@ app.get('/shipments/:status', async (req, res) => {
   const shipments = await getWhere(status);
   res.send(shipments);
 });
-
 app.post("/newShipment", async (req, res) => {
   const { Bill_Number, LR_Number, DateOfShipment, Status, Sender_City, Receiver_City } = req.body;
   const shipment = { Bill_Number, LR_Number, DateOfShipment, Status, Sender_City, Receiver_City };
-  const result = await addShipment(shipment);
-  res.send(result);
+
+  try {
+    const result = await addShipment(shipment);
+    res.status(201).send(result);
+  } catch (error) {
+    if (error.message.includes('Bill Number')) {
+      res.status(409).send({ error: 'Shipment with this Bill Number already exists.' });
+    } 
+  }
 });
 
 app.delete('/shipment/:billNumber', async (req, res) => {
   const { billNumber } = req.params;
-  try {
     const result = await deleteShipment(billNumber);
     if (result.affectedRows === 0) {
       res.status(404).send({ message: 'Shipment not found' });
     } else {
       res.send({ message: 'Shipment deleted successfully' });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: 'Error deleting shipment' });
-  }
+  
 });
