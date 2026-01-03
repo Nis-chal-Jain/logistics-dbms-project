@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { getAll, getWhere, addShipment, deleteShipment } from './db.js';
+import { validateShipmentMiddleware } from './validation.js';
 
 const app = express();
 app.use(cors()); 
@@ -20,7 +21,7 @@ app.get('/shipments/:status', async (req, res) => {
   const shipments = await getWhere(status);
   res.send(shipments);
 });
-app.post("/newShipment", async (req, res) => {
+app.post("/shipments", validateShipmentMiddleware, async (req, res) => {
   const { Bill_Number, LR_Number, DateOfShipment, Status, Sender_City, Receiver_City } = req.body;
   const shipment = { Bill_Number, LR_Number, DateOfShipment, Status, Sender_City, Receiver_City };
 
@@ -30,7 +31,9 @@ app.post("/newShipment", async (req, res) => {
   } catch (error) {
     if (error.message.includes('Bill Number')) {
       res.status(409).send({ error: 'Shipment with this Bill Number already exists.' });
-    } 
+    } else {
+      res.status(500).send({ error: 'Internal server error' });
+    }
   }
 });
 

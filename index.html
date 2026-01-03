@@ -445,7 +445,7 @@
             Receiver_City: document.getElementById("receiver").value,
           };
 
-          const response= await fetch(`${API}/newShipment`, {
+          const response= await fetch(`${API}/shipments`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(shipment),
